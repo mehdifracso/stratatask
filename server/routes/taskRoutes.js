@@ -38,4 +38,26 @@ router.get("/tasks", auth, async (req, res) => {
   }
 });
 
+// Update a single user task
+router.put("/tasks/:taskId", auth, async (req, res) => {
+  const { taskId } = req.params;
+  const updates = req.body;
+
+  try {
+    const task = await Task.findOne({ _id: taskId, user: req.user.id });
+
+    if (!task) {
+      return res.status(404).send({ message: "Task not found" });
+    }
+
+    Object.assign(task, updates);
+    await task.save();
+
+    res.send(task);
+  } catch (error) {
+    console.log({ error });
+    res.status(400).send(error);
+  }
+});
+
 module.exports = router;
